@@ -7,6 +7,7 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 ## Categories
 
 - [Access Control](./access-control.md)
+- [SQL Injection](./sql-injection.md)
 
 ## Format
 
