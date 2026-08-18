@@ -1,4 +1,4 @@
-# Security Misconfiguration → CORS
+# Security Misconfiguration
 
 ## CORS Vulnerability with basic origin reflection
 
