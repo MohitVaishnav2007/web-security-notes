@@ -8,6 +8,8 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 
 - [Access Control](./access-control.md)
 - [SQL Injection](./sql-injection.md)
+- [Security Misconfiguration](./security-misconfiguration.md)
+- [Path Transversal](./path-traversal.md)
 
 ## Format
 
