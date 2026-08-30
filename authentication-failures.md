@@ -40,3 +40,19 @@
 **Tools:** Burpsuite.
 
 ---
+
+## Category: Password reset broken logic
+
+**Approach:** Test the password reset flow and found that the `temp-forgot-password-token` parameter is not actually being validated by the server (verified by removing its value entirely).
+
+→ Request a new password reset with the token removed at `POST /forgot-password?temp-forgot-password-token=` — both the URL parameter and the request body's token field left empty.
+
+→ Change the `username` field to `carlos` and set the `password` field to whatever you want.
+
+→ Send the request — the server accepts it and resets Carlos's password without ever checking the token's validity.
+
+**Why:** The presence of a `temp-forgot-password-token` parameter was assumed to mean the token had been validated → the server never actually checked whether the token was correct (or even present) before honoring the reset, only reading the `username` field → any sensitive action gated by a token must explicitly verify that token server-side, an empty or missing value should never be silently accepted.
+
+**Tools:** Burpsuite.
+
+---
