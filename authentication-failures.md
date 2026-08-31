@@ -56,3 +56,19 @@
 **Tools:** Burpsuite.
 
 ---
+
+## Category: Basic password reset poisoning
+
+**Approach:** Request a password reset for your own account (`wiener`) and send the `POST /forgot-password` request to Repeater.
+
+→ Change the `Host` header to your exploit server's domain and set `username=carlos`. Send the request.
+
+→ Check your exploit server's Access Log for a `GET /forgot-password?temp-forgot-password-token=...` request — this is Carlos's reset token.
+
+→ Take a genuine reset link from your own email and swap in Carlos's token. Visit it, set a new password, and log in as `carlos`.
+
+**Why:** The `Host` header was trusted to build the password reset link → an attacker-controlled Host redirected the victim's reset token to the attacker's server → always hardcode the domain server-side for sensitive links, never derive it from request headers.
+
+**Tools:** Burpsuite.
+
+---
