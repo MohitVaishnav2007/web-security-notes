@@ -12,6 +12,7 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 - [Path Transversal](./path-traversal.md)
 - [Authentication Failures](./authentication-failures.md)
 - [Cryptographic Failures](./cryptographic-failures.md)
+- [XSS(Cross-Site Scripting)](./xss.md)
 
 ## Format
 
