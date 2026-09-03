@@ -27,3 +27,17 @@
 **Tools:** Burpsuite (optional — browser alone is enough for this one)
 
 ---
+
+## DOM XSS in document.write sink using source location.search
+
+**Approach:** Searched a term in the search box and inspected the rendered HTML — found the search term reflected inside an `<img>` tag's `src` attribute, written there client-side via the page's own `document.write()` call using `location.search` as the source.
+
+→ Since the input landed inside an attribute value, closed the attribute and tag first, then injected a fresh script: `newpost"><script>alert('success on my foot')</script><`
+
+→ Submitted this as the search query — the alert fired. Lab solved.
+
+**Why:** Search term from location.search written raw into an img src via document.write → closing the attribute and tag broke out into a new <script> → sanitize/encode data client-side before it reaches any DOM sink, since the server never sees this class of payload.
+
+**Tools:** Browser DevTools (Inspect Element) to trace the reflection point
+
+---
