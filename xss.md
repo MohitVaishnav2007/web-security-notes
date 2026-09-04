@@ -28,7 +28,7 @@
 
 ---
 
-## DOM XSS in document.write sink using source location.search
+## Category: DOM XSS in document.write sink using source location.search
 
 **Approach:** Searched a term in the search box and inspected the rendered HTML — found the search term reflected inside an `<img>` tag's `src` attribute, written there client-side via the page's own `document.write()` call using `location.search` as the source.
 
@@ -37,6 +37,22 @@
 → Submitted this as the search query — the alert fired. Lab solved.
 
 **Why:** Search term from location.search written raw into an img src via document.write → closing the attribute and tag broke out into a new <script> → sanitize/encode data client-side before it reaches any DOM sink, since the server never sees this class of payload.
+
+**Tools:** Browser DevTools (Inspect Element) to trace the reflection point
+
+---
+
+## Category: DOM XSS in innerHTML sink using source location.search
+
+**Approach:** Tested the search box and inspected where the search word gets reflected in the HTML — found it inside a span, inserted via `innerHTML`.
+
+→ Tried `<script>alert('maybe it gee')</script>` first — it showed up in the DOM but didn't fire, since script tags are blocked from executing when inserted via `innerHTML` as a security measure.
+
+→ Tried `<img src=x onerror=alert("error ditacted")>` — still didn't fire, since the double quotes in the payload were being mangled.
+
+→ Removed the quotes and ran `<img src=x onerror=alert(1)>` — it worked. Lab solved.
+
+**Why:** `innerHTML` blocks `<script>` tags from executing as a security measure, but it still renders event-handler attributes like `onerror` normally → the img's broken `src=x` triggered `onerror=alert(1)` → filtering `<script>` tags alone isn't enough, since HTML elements with event handlers still execute through `innerHTML`.
 
 **Tools:** Browser DevTools (Inspect Element) to trace the reflection point
 
