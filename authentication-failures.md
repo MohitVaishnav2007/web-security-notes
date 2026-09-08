@@ -3,6 +3,26 @@
 
 ---
 
+## Category: Brute-forcing a stay-logged-in cookie
+
+**Approach:** Logged in as `wiener:peter` with "Stay logged in" checked, and inspected the `stay-logged-in` cookie in Burp.
+
+→ Decoded it as Base64 in Burp Decoder — got `wiener:51dc30ddc473d43a6011e9ebba6ca770`, a username followed by a 32-character hex string.
+
+→ Confirmed the hex string was MD5 by hashing the known password `peter` and matching it against the decoded value.
+
+→ Logged out to remove the active `session` cookie, then sent a `GET /my-account?id=carlos` request to Intruder with the `stay-logged-in` value as the payload position.
+
+→ Set the candidate password list as payloads, and added three Payload Processing rules in order: **Hash (MD5) → Add prefix (`carlos:`) → Encode (Base64)** — replicating the cookie's exact construction.
+
+→ Ran the attack; the response that differed from the rest (correct redirect/length) revealed the working forged cookie. Used it to access Carlos's account and solve the lab.
+
+**Why:** The `stay-logged-in` cookie was just `base64(username:md5(password))` → structure was reverse-engineered and rebuilt offline for any username with a guessable password → persistent auth tokens must use unpredictable, random values, never a reversible encoding of guessable credentials.
+
+**Tools:** Burpsuite (Decoder, Intruder).
+
+---
+
 ## Category: Username enumeration via different responses
 
  **Approach**: At proxy, > HTTP History, find the `POST` request to `/login`. Send it to Intruder.
