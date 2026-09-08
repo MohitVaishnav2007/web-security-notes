@@ -2,7 +2,7 @@
 
 
 ---
-
+ 
 ## Category: Brute-forcing a stay-logged-in cookie
 
 **Approach:** Logged in as `wiener:peter` with "Stay logged in" checked, and inspected the `stay-logged-in` cookie in Burp.
