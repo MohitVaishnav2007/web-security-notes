@@ -13,6 +13,7 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 - [Authentication Failures](./authentication-failures.md)
 - [Cryptographic Failures](./cryptographic-failures.md)
 - [XSS(Cross-Site Scripting)](./xss.md)
+- [SSRF(Server-Side Request Forgery)](./ssrf.md)
 
 ## Format
 
