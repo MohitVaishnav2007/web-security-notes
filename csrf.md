@@ -2,7 +2,7 @@
 
 ---
 
-## CSRF vulnerability with no defenses
+## Category: CSRF vulnerability with no defenses
 
 **Approach:** Log in as `wiener:peter`, go to account settings, change the email through the normal UI, and capture the request in Burp Proxy/Repeater.
 
@@ -25,5 +25,32 @@
 **Why:** No CSRF token on `/my-account/change-email` → auto-submitting form on attacker's exploit server forges the POST → victim's browser auto-attaches their real session cookie cross-origin → fix: bind a unique, unpredictable, session-tied CSRF token to the form and validate it server-side on every state-changing request.
 
 **Tools:** Burpsuite (Proxy/Repeater), PortSwigger exploit server, hand-written HTML/JS.
+
+---
+
+## Category: CSRF where token validation depends on request method
+
+**Approach:** Same `/my-account/change-email` endpoint, but now a CSRF token parameter is required and validated — on `POST` requests only.
+
+→ Confirm a normal `POST` with a missing/invalid `csrf` value gets rejected.
+
+→ Confirm the endpoint still accepts `GET` requests with the same parameters passed as a query string, and performs the same action.
+
+→ Build the PoC form with `method="GET"` instead of `POST`, still including the (irrelevant) `csrf` hidden input:
+```html
+<form id="csrf-form" action="https://<lab-id>.web-security-academy.net/my-account/change-email" method="GET">
+    <input type="hidden" name="email" value="attacker@example.com">
+    <input type="hidden" name="csrf" value="anything">
+</form>
+<script>
+    document.getElementById("csrf-form").submit();
+</script>
+```
+
+→ Store on exploit server, view/deliver — GET request bypasses the token check entirely (validation only runs in the POST code path) and the email changes. Solves the lab.
+
+**Why:** CSRF token validated only on the `POST` handler → same endpoint still accepts `GET` and performs the same action → attacker's form uses `method="GET"` instead, skipping the validation path entirely → fix: validate the CSRF token for every method/route that can trigger the state-changing action, or explicitly reject any method other than the one intended.
+
+**Tools:** Burpsuite (Repeater), PortSwigger exploit server, hand-written HTML/JS.
 
 ---
