@@ -71,6 +71,35 @@
 
 **Why**: CSRF token only validated if the parameter exists in the request → omit the csrf field entirely from the forged form → server's "if present, validate" logic has no else-branch rejecting absence → fix: require the token parameter unconditionally — treat a missing token exactly the same as an invalid one (both = reject)
 
-**Tools**: Burpsuite
+**Tools**: Burpsuite(Proxy/Repeater), PortSwigger exploit server, hand-written HTML/JS
+
+
+---
+
+
+## Category: CSRF where token is not tied to user session
+
+**Approach:** Same `/my-account/change-email` endpoint, CSRF token now required and validated — but only checked as "is this token valid and unused," never "does this token belong to the current session."
+
+→ Log in as `wiener:peter`, go to account page, grab the CSRF token from the hidden field in the change-email form (view page source or intercept `GET /my-account` response).
+
+→ Build the PoC form with `method="POST"`, wiener's freshly grabbed token hardcoded into the `csrf` hidden field:
+```html
+<form id="csrf-form" action="https://<lab-id>.web-security-academy.net/my-account/change-email" method="POST">
+    <input type="hidden" name="email" value="attacker@example.com">
+    <input type="hidden" name="csrf" value="WIENERS_FRESH_TOKEN_HERE">
+</form>
+<script>
+    document.getElementById("csrf-form").submit();
+</script>
+```
+
+→ Store on exploit server. **Do NOT click "View exploit"** — that would burn the token before delivery. Go straight to **"Deliver exploit to victim."**
+
+→ Carlos's browser loads the page, auto-submits with his session cookie + wiener's valid token → server validates both independently, accepts the request, changes carlos's email. Solves the lab.
+
+**Why:** Token validated as "exists and unused" but never checked against the requesting session → attacker extracts their own valid token and hardcodes it into the forged form → victim's browser submits attacker's token + victim's cookie → server accepts both independently → fix: bind every token to the session ID at issuance time and reject any token that doesn't match the current session on validation.
+
+**Tools:** Burpsuite (Proxy/Repeater), PortSwigger exploit server, hand-written HTML/JS
 
 ---
