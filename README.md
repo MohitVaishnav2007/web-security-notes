@@ -15,6 +15,7 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 - [XSS(Cross-Site Scripting)](./xss.md)
 - [SSRF(Server-Side Request Forgery)](./ssrf.md)
 - [CSRF(Cross-Side Request Forgery)](./csrf.md)
+- [Insecure Deserialization](./insecure-deserialization.md)
 
 ## Format
 
