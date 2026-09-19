@@ -49,4 +49,12 @@
 
 ---
 
+## Category: User role can be modified in user profile
 
+**Approach:** Log in as `wiener` -> navigate to My Account -> intercept the "update email" `POST /my-account/change-email` request in Burp Repeater -> add a new body parameter `roleid=2` alongside the existing email field -> send request -> reload account page -> `Admin panel` link now appears -> access `/admin` and delete `carlos`
+
+**Why:** Server trusted client-supplied `roleid` on account update -> endpoint accepted an unexpected `roleid` field with no authorization check -> never assume a parameter is "hidden" just because the UI doesn't expose it; if the server accepts it, treat it as attacker-controlled.
+
+**Tools:** Burp Suite (Repeater)
+
+---
