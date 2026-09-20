@@ -68,3 +68,13 @@
 **Tools:** Burp Suite (Repeater)
 
 ---
+
+## Category: Method-based access control can be circumvented
+
+**Approach:** Log in as `wiener` -> capture the privileged `PUT /admin-roles` (username/action in body) request -> on wiener's own session, confirm blocked with `401 Unauthorized` -> change the HTTP method to an invalid, made-up verb (`LOLO`), keeping params in body -> still blocked/"missing parameter" -> convert request to GET format, moving `username=wiener&action=upgrade` into the query string while keeping the invalid method `LOLO`, still on wiener's own session -> send -> `302 Found` redirect to `/admin`, role upgraded
+
+**Why:** Access control matched only a known whitelist of real HTTP methods -> route handler executed the action for any method string as long as it could parse the parameters -> access control must default-deny for anything that isn't explicitly allowed, not just check for specific known methods.
+
+**Tools:** Burp Suite (Repeater)
+
+---
