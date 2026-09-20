@@ -58,3 +58,13 @@
 **Tools:** Burp Suite (Repeater)
 
 ---
+
+## Category: URL based access control can be circumvented
+
+**Approach:** Log in as `wiener` -> request `/admin` directly -> blocked -> in Repeater, change the request path to `/` and add header `X-Original-URL: /admin` -> send -> admin panel now loads -> find the delete-user function's path (`/admin/delete`) -> send request to `/` with `X-Original-URL: /admin/delete` and query string `?username=carlos` -> `carlos` deleted
+
+**Why:** Access control was enforced only on the visible request path by a front-end/proxy layer -> back-end also honored the `X-Original-URL` override header with no re-check, and separately read the query string as normal request arguments -> path-based access control must be enforced at the layer that actually serves the request, not a layer in front of it that can be bypassed via alternate routing headers; the override header only decides which handler runs, the query string still supplies that handler's arguments independently.
+
+**Tools:** Burp Suite (Repeater)
+
+---
