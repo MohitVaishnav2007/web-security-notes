@@ -78,3 +78,23 @@
 **Tools:** Burp Suite (Repeater)
 
 ---
+
+## Category: User ID controlled by request parameter, with unpredictable user IDs
+
+**Approach:** Find a post authored by `carlos` on the blog -> view page source of that post -> locate carlos's unique (GUID-style) user ID embedded in the HTML -> submit that user ID in place of your own in the relevant Burp request -> response returns carlos's API key -> submit the API key to solve the lab
+
+**Why:** Unpredictable ID treated as auth -> ID leaked in page HTML -> obscurity isn't access control.
+
+**Tools:** Burp Suite
+
+---
+
+## Category: User ID controlled by request parameter with data leakage in redirect
+
+**Approach:** Log in as `wiener` -> capture the GET request that loads account/user data (`id=wiener` param) -> change `id` parameter to `carlos` -> server issues a redirect (302) instead of directly rendering the page -> inspect the redirect response closely -> carlos's API key is leaked in the redirect response body/headers before the redirect completes -> submit API key to solve lab
+
+**Why:** Unpredictable/relevant authorization checked on final page render -> API key leaked in redirect response -> secure the data at every point it's transmitted, not just the final destination.
+
+**Tools:** Burp Suite
+
+---
