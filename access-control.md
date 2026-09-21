@@ -98,3 +98,43 @@
 **Tools:** Burp Suite
 
 ---
+
+## Category: User ID controlled by request parameter with password disclosure
+
+**Approach:** Log in as `wiener` -> access "update account" functionality -> tamper the `id`/user parameter to point at `administrator` -> submit the update request without changing the password field -> intercept in Burp -> administrator's current password is disclosed in the request/response -> log in as `administrator` using that password -> delete `carlos` to solve the lab
+
+**Why:** Access check only verified you were logged in as *some* user, not that the ID in the request matched your own -> the edit-account form pre-filled and sent back the target's existing password even when unchanged -> never trust "logged in" as equal to "authorized for this specific record," and never let a form leak an existing sensitive value just because it's rendering it for editing.
+
+**Tools:** Burp Suite
+
+---
+
+## Category: Insecure direct object references
+
+**Approach:** Open live chat -> download own transcript, note filename pattern (sequential integer + `.txt`) -> manually request an earlier file (`1.txt`) by editing the URL -> retrieve carlos's chat transcript, containing his password in plaintext -> log in as carlos with the leaked password
+
+**Why:** Transcript filenames used a predictable sequential counter with no ownership check -> decrementing the number returned another user's file directly -> sequential/incremental IDs are guessable; always pair them with a server-side ownership check.
+
+**Tools:** Browser, manual URL editing
+
+---
+
+## Category: Multi-step process with no access control on one step
+
+**Approach:** Log in as `administrator` -> begin the "upgrade user" flow, capturing both requests (step 1: initiate/confirm, step 2: apply the action) in Burp -> log in as `wiener` in a separate session -> take step 2's request from the admin's captured flow, swap the session cookie to wiener's -> send step 2 directly, skipping step 1 -> wiener is upgraded to administrator
+
+**Why:** Access control was only enforced on step 1 -> step 2's state-changing request had no independent check, trusting step 1 had already gated it -> every step of a multi-step flow must independently verify authorization, not just the entry point.
+
+**Tools:** Burp Suite (Repeater)
+
+---
+
+## Category: Referer-based access control
+
+**Approach:** Log in as `administrator` -> browse to admin panel, promote a user, capture that upgrade request in Burp (carries `Referer: .../admin` since it genuinely originated there) -> log in as `wiener`, swap the session cookie into the captured request, change `username` to `wiener` -> forward request (Referer header from admin's flow still attached) -> wiener promoted to administrator
+
+**Why:** Access control was based on the `Referer` header instead of session/role -> the app trusted "request came from a page inside /admin" as proof of being an admin, but that header is fully client-controlled -> a request's origin (as claimed by a client-sent header) is never proof of authorization; enforce checks on server-verified identity, not headers the client can freely spoof.
+
+**Tools:** Burp Suite (Repeater)
+
+---
