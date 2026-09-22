@@ -16,6 +16,7 @@ Each file covers one category. Every solved lab gets logged as: **Approach → W
 - [SSRF(Server-Side Request Forgery)](./ssrf.md)
 - [CSRF(Cross-Side Request Forgery)](./csrf.md)
 - [Insecure Deserialization](./insecure-deserialization.md)
+- [Business Logic vulnerability/Flaw](./business-logic-vulnerabilities.md)
 
 ## Format
 
