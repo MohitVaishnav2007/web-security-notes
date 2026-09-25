@@ -1,4 +1,4 @@
-# Buusiness Logic Vulnerability/Flaws
+# Business Logic Vulnerability/Flaws
 
 
 ---
@@ -32,5 +32,17 @@
 **Why:** The app trusted the `verify` parameter to scope which account a 2FA code belonged to, but never checked whether the *same user* who requested the code was the one submitting it → an attacker could generate a valid code for another account and brute-force it without rate limiting → 2FA must be bound to the authenticated session that requested it, and code submission must be rate-limited.
 
 **Tools:** Burpsuite.
+
+---
+
+## Category: High-level logic vulnerability
+
+**Approach:** Log in as `wiener` -> add "Lightweight l33t leather jacket" to cart at normal quantity (1) -> add a separate cheap item to cart -> intercept the request updating that cheap item's quantity -> set it to a large negative value -> forward request -> cart total drops below available store credit -> place order
+
+**Why:** Cart total was computed by summing per-item price × client-supplied quantity with no bound on negative values -> a negative quantity on a cheap item produced a negative line total, dragging the overall cart total below available credit -> server must validate that quantities stay within sane bounds (e.g. ≥0) before trusting any arithmetic built from them.
+
+**Impact:** Allows any authenticated user to acquire high-value items essentially for free by manipulating cart quantities, resulting in direct financial loss.
+
+**Tools:** Burp Suite (Proxy/Repeater)
 
 ---
